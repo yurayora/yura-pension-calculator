@@ -16,6 +16,7 @@
         button { background: #1a73e8; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: background 0.3s; }
         button:hover { background: #1557b0; }
         #result { margin-top: 30px; white-space: pre-wrap; background: #fff; padding: 20px; border-radius: 10px; border-left: 6px solid #1a73e8; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); min-height: 100px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -23,81 +24,95 @@
         <h2>📊 요라의 스마트 연금 시뮬레이터</h2>
         
         <div class="input-row">
-            <div class="input-group">
-                <label>현재 연령 (세)</label>
-                <input type="number" id="currentAge" placeholder="예: 42">
-            </div>
-            <div class="input-group">
-                <label>은퇴 예정 연령 (세)</label>
-                <input type="number" id="retireAge" placeholder="예: 50">
-            </div>
+            <div class="input-group"><label>현재 연령 (세)</label><input type="number" id="currentAge" value="42"></div>
+            <div class="input-group"><label>은퇴 예정 연령 (세)</label><input type="number" id="retireAge" value="55"></div>
         </div>
 
         <div class="input-group">
             <label>현재 연금/IRP 계좌 잔액 (원)</label>
-            <input type="number" id="currentBalance" placeholder="예: 100000000">
+            <input type="number" id="currentBalance" value="100000000">
         </div>
 
         <div class="input-row">
             <div class="input-group">
                 <label>추가 납입 계획</label>
-                <select id="depositCycle">
-                    <option value="월">매월 납입</option>
-                    <option value="연">매년 납입</option>
-                </select>
+                <select id="depositCycle"><option value="월">매월 납입</option><option value="연" selected>매년 납입</option></select>
             </div>
-            <div class="input-group">
-                <label>납입 금액 (원)</label>
-                <input type="number" id="depositAmount" placeholder="예: 1000000">
-            </div>
+            <div class="input-group"><label>납입 금액 (원)</label><input type="number" id="depositAmount" value="8000000"></div>
         </div>
 
         <div class="input-row">
+            <div class="input-group"><label>기대 연평균 수익률 (%)</label><input type="number" id="roi" value="5"></div>
             <div class="input-group">
-                <label>기대 연평균 수익률 (%)</label>
-                <input type="number" id="roi" placeholder="예: 5" step="0.1">
-            </div>
-            <div class="input-group">
-                <label>수령 방법</label>
-                <select id="withdrawType">
-                    <option value="정액">정액 분할 (일정 금액)</option>
-                    <option value="정률">정기 분할 (일정 기간)</option>
+                <label>수령 방법 선택</label>
+                <select id="withdrawType" onchange="toggleWithdrawInput()">
+                    <option value="정기">정기 분할 (일정 기간 선택)</option>
+                    <option value="정액">정액 분할 (월 수령액 선택)</option>
                 </select>
             </div>
         </div>
 
-        <div class="input-group">
-            <label>수령 시작 연도 (년)</label>
-            <input type="number" id="withdrawStartYear" placeholder="예: 2045">
+        <div id="withdrawDurationGroup" class="input-group">
+            <label>수령 희망 기간 (년)</label>
+            <input type="number" id="withdrawDuration" placeholder="예: 10">
+        </div>
+
+        <div id="withdrawAmountGroup" class="input-group hidden">
+            <label>희망 월 수령액 (원)</label>
+            <input type="number" id="withdrawMonthly" placeholder="예: 2000000">
         </div>
 
         <button onclick="runSimulation()">AI 분석 시작하기</button>
-        
-        <div id="result">여기에 분석 결과가 표시됩니다...</div>
+        <div id="result">분석 결과가 여기에 표시됩니다...</div>
     </div>
 
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        const API_KEY = "YOUR_API_KEY_HERE";
+        // 🔴 여기에 실제 API 키를 다시 넣어주세요!
+        const API_KEY = "AIzaSyBESJ33rtrjwMmCVtID2Toja-_uEQjzShU";
         const genAI = new GoogleGenerativeAI(API_KEY);
+
+        // 수령 방법에 따라 입력창 전환하는 함수
+        window.toggleWithdrawInput = () => {
+            const type = document.getElementById('withdrawType').value;
+            if (type === '정기') {
+                document.getElementById('withdrawDurationGroup').classList.remove('hidden');
+                document.getElementById('withdrawAmountGroup').classList.add('hidden');
+            } else {
+                document.getElementById('withdrawDurationGroup').classList.add('hidden');
+                document.getElementById('withdrawAmountGroup').classList.remove('hidden');
+            }
+        };
 
         window.runSimulation = async () => {
             const resultDiv = document.getElementById('result');
-            
-            // 데이터 수집
-            const data = {
-                현재연령: document.getElementById('currentAge').value,
-                은퇴연령: document.getElementById('retireAge').value,
-                현재잔액: document.getElementById('currentBalance').value,
-                납입주기: document.getElementById('depositCycle').value,
-                납입금액: document.getElementById('depositAmount').value,
-                수익률: document.getElementById('roi').value,
-                수령방법: document.getElementById('withdrawType').value,
-                수령시작: document.getElementById('withdrawStartYear').value
-            };
-
-            resultDiv.innerText = "데이터를 바탕으로 연금 시나리오를 분석 중입니다...";
+            resultDiv.innerText = "데이터 분석 중... 잠시만 기다려주세요.";
 
             try {
-                const model =
+                const data = {
+                    currentAge: document.getElementById('currentAge').value,
+                    retireAge: document.getElementById('retireAge').value,
+                    balance: document.getElementById('currentBalance').value,
+                    cycle: document.getElementById('depositCycle').value,
+                    amount: document.getElementById('depositAmount').value,
+                    roi: document.getElementById('roi').value,
+                    type: document.getElementById('withdrawType').value,
+                    duration: document.getElementById('withdrawDuration').value,
+                    monthly: document.getElementById('withdrawMonthly').value
+                };
+
+                const model = genAI.getGenerativeModel({ 
+                    model: "gemini-1.5-flash-latest",
+                    systemInstruction: "당신은 연금 전략 전문가입니다. 제공된 데이터를 기반으로 은퇴 시점 자산, 월 예상 수령액, 세금 및 절세 전략을 상세히 분석하여 리포트로 제공하세요."
+                });
+                
+                const result = await model.generateContent(JSON.stringify(data));
+                resultDiv.innerText = result.response.text();
+            } catch (error) {
+                resultDiv.innerText = "오류 발생: " + error.message;
+            }
+        };
+    </script>
+</body>
+</html>
