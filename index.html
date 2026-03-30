@@ -1,77 +1,103 @@
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>요라의 연금/IRP 시뮬레이터</title>
+    <title>요라의 스마트 연금 시뮬레이터</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; background: #f0f2f5; color: #333; }
         .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         h2 { color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 15px; margin-top: 0; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        textarea { width: 100%; height: 120px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; box-sizing: border-box; font-size: 15px; resize: none; transition: border-color 0.3s; }
-        textarea:focus { border-color: #1a73e8; outline: none; }
-        button { background: #1a73e8; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .input-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; font-size: 14px; }
+        input, select { width: 100%; border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 15px; transition: border-color 0.3s; }
+        input:focus, select:focus { border-color: #1a73e8; outline: none; }
+        button { background: #1a73e8; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: background 0.3s; }
         button:hover { background: #1557b0; }
         #result { margin-top: 30px; white-space: pre-wrap; background: #fff; padding: 20px; border-radius: 10px; border-left: 6px solid #1a73e8; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); min-height: 100px; }
-        .tip { font-size: 12px; color: #888; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>📊 요라의 스마트 연금 시뮬레이터</h2>
-        <p style="color: #666; margin-bottom: 25px;">현재 자산과 은퇴 계획을 자유롭게 입력하시면, AI가 절세 전략과 고갈 시점을 분석해 드립니다.</p>
         
-        <div class="input-group">
-            <label for="userInput">상세 정보 입력</label>
-            <textarea id="userInput" placeholder="예: 현재 42세, 50세 은퇴 예정. 현재 IRP에 1억 원이 있고 매달 100만 원씩 추가 납입할 거야. 수익률은 5% 예상하고, 60세부터 10년 동안 정기로 나눠 받고 싶어."></textarea>
+        <div class="input-row">
+            <div class="input-group">
+                <label>현재 연령 (세)</label>
+                <input type="number" id="currentAge" placeholder="예: 42">
+            </div>
+            <div class="input-group">
+                <label>은퇴 예정 연령 (세)</label>
+                <input type="number" id="retireAge" placeholder="예: 50">
+            </div>
         </div>
-        
+
+        <div class="input-group">
+            <label>현재 연금/IRP 계좌 잔액 (원)</label>
+            <input type="number" id="currentBalance" placeholder="예: 100000000">
+        </div>
+
+        <div class="input-row">
+            <div class="input-group">
+                <label>추가 납입 계획</label>
+                <select id="depositCycle">
+                    <option value="월">매월 납입</option>
+                    <option value="연">매년 납입</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>납입 금액 (원)</label>
+                <input type="number" id="depositAmount" placeholder="예: 1000000">
+            </div>
+        </div>
+
+        <div class="input-row">
+            <div class="input-group">
+                <label>기대 연평균 수익률 (%)</label>
+                <input type="number" id="roi" placeholder="예: 5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>수령 방법</label>
+                <select id="withdrawType">
+                    <option value="정액">정액 분할 (일정 금액)</option>
+                    <option value="정률">정기 분할 (일정 기간)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>수령 시작 연도 (년)</label>
+            <input type="number" id="withdrawStartYear" placeholder="예: 2045">
+        </div>
+
         <button onclick="runSimulation()">AI 분석 시작하기</button>
         
         <div id="result">여기에 분석 결과가 표시됩니다...</div>
-        <p class="tip">※ 본 결과는 입력하신 수익률을 바탕으로 한 시뮬레이션이며 실제와 다를 수 있습니다.</p>
     </div>
 
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // 🔴 여기에 발급받은 실제 API 키를 넣으세요!
         const API_KEY = "YOUR_API_KEY_HERE";
         const genAI = new GoogleGenerativeAI(API_KEY);
 
         window.runSimulation = async () => {
             const resultDiv = document.getElementById('result');
-            const input = document.getElementById('userInput').value;
             
-            if (!input) {
-                alert("정보를 입력해주세요!");
-                return;
-            }
+            // 데이터 수집
+            const data = {
+                현재연령: document.getElementById('currentAge').value,
+                은퇴연령: document.getElementById('retireAge').value,
+                현재잔액: document.getElementById('currentBalance').value,
+                납입주기: document.getElementById('depositCycle').value,
+                납입금액: document.getElementById('depositAmount').value,
+                수익률: document.getElementById('roi').value,
+                수령방법: document.getElementById('withdrawType').value,
+                수령시작: document.getElementById('withdrawStartYear').value
+            };
 
-            resultDiv.innerText = "요라님의 데이터를 분석 중입니다. 잠시만 기다려주세요...";
+            resultDiv.innerText = "데이터를 바탕으로 연금 시나리오를 분석 중입니다...";
 
             try {
-                const model = genAI.getGenerativeModel({ 
-                    model: "gemini-1.5-flash-latest",
-                    systemInstruction: `당신은 대한민국 연금 전략 전문가입니다. 
-                    사용자의 입력을 바탕으로 다음을 계산하여 리포트를 작성하세요:
-                    1. 은퇴 시점 예상 총 자산 (복리 계산)
-                    2. 연금수령한도(120% 룰)를 적용한 최적의 절세 인출 스케줄
-                    3. 수령 기간 동안의 잔액 변화 및 고갈 시점
-                    4. 다우존스, 배당ETF 등을 고려한 추가 운용 팁
-                    결과는 표와 불렛 포인트를 활용하여 가독성 있게 한국어로 출력하세요.`
-                });
-                
-                const result = await model.generateContent(input);
-                resultDiv.innerText = result.response.text();
-            } catch (error) {
-                resultDiv.innerText = "분석 중 오류가 발생했습니다: " + error.message;
-            }
-        };
-    </script>
-</body>
-</html>
+                const model =
