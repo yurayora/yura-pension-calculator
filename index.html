@@ -3,107 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전략적 연금 인출 엔진 v1.5</title>
+    <title>전략적 연금 인출 엔진 v1.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         body { font-family: 'Pretendard', sans-serif; background-color: #F3F4F6; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .table-container { max-height: 450px; overflow-y: auto; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-7xl mx-auto">
         <header class="flex items-center gap-3 mb-8 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg">🛡️</div>
             <div>
                 <h1 class="text-xl font-black text-gray-900 tracking-tight">전략적 연금 인출 엔진</h1>
-                <p class="text-[10px] font-bold text-indigo-500 uppercase">Strategic Pension Withdrawal Engine v1.5</p>
+                <p class="text-[10px] font-bold text-indigo-500 uppercase">Strategic Pension Withdrawal Engine v1.9</p>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
                 <section class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-5">
-                    <h2 class="font-bold text-gray-800 flex items-center gap-2 border-b pb-4">💰 자산 축적 설정</h2>
+                    <h2 class="font-bold text-gray-800 flex items-center gap-2 border-b pb-4 text-sm">💰 자산 축적 설정</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-[10px] font-bold text-gray-400">현재 나이</label><input id="age" type="number" value="35" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold"></div>
-                        <div><label class="text-[10px] font-bold text-gray-400">은퇴 나이</label><input id="retire" type="number" value="60" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold"></div>
+                        <div><label class="text-[10px] font-bold text-gray-400">현재 나이</label><input id="age" type="number" value="42" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm"></div>
+                        <div><label class="text-[10px] font-bold text-gray-400">은퇴 나이</label><input id="retire" type="number" value="55" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm"></div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400">현재 잔액 (원)</label>
-                        <input id="balanceDisp" type="text" value="50,000,000" oninput="formatInput(this, 'balance')" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-indigo-600">
-                        <input id="balance" type="hidden" value="50000000">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400">매월 추가 납입 (원)</label>
-                        <input id="monthlyDisp" type="text" value="1,000,000" oninput="formatInput(this, 'monthly')" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
-                        <input id="monthly" type="hidden" value="1000000">
-                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-400">현재 잔액 (원)</label><input id="balanceDisp" type="text" value="100,000,000" oninput="formatInput(this, 'balance')" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-indigo-600 text-sm"><input id="balance" type="hidden" value="100000000"></div>
+                    <div><label class="text-[10px] font-bold text-gray-400">매월 추가 납입 (원)</label><input id="monthlyDisp" type="text" value="0" oninput="formatInput(this, 'monthly')" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm"><input id="monthly" type="hidden" value="0"></div>
+                    <div><label class="text-[10px] font-bold text-gray-400">매년 추가 납입 (원) <span class="text-indigo-400">(선택)</span></label><input id="yearlyDisp" type="text" value="8,000,000" oninput="formatInput(this, 'yearly')" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm"><input id="yearly" type="hidden" value="8000000"></div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-400">축적기 기대 수익률</label>
-                        <select id="accReturn" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
-                            <option value="0.03">안정형 (3%)</option>
-                            <option value="0.05" selected>중립형 (5%)</option>
-                            <option value="0.08">성장형 (8%)</option>
+                        <select id="accReturn" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm">
+                            <option value="0.03">안정형 (3%)</option><option value="0.045">중립형 (4.5%)</option><option value="0.06" selected>성장형 (6%)</option>
                         </select>
                     </div>
                 </section>
 
                 <section class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-5">
-                    <h2 class="font-bold text-gray-800 flex items-center gap-2 border-b pb-4">📈 인출 및 운용 전략</h2>
-                    <div><label class="text-[10px] font-bold text-gray-400">수령 개시 연령</label><input id="drawAge" type="number" value="65" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-emerald-600"></div>
+                    <h2 class="font-bold text-gray-800 flex items-center gap-2 border-b pb-4 text-sm">📈 인출 및 운용 전략</h2>
+                    <div><label class="text-[10px] font-bold text-gray-400">수령 개시 연령</label><input id="drawAge" type="number" value="65" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-emerald-600 text-sm"></div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-400">수령 방식 선택</label>
-                        <select id="drawMethod" onchange="toggleMethodInputs()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
-                            <option value="duration">기간형 (수령 기간 지정)</option>
-                            <option value="fixed">정액형 (월 인출금 지정)</option>
+                        <select id="drawMethod" onchange="toggleMethodInputs()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm">
+                            <option value="duration">기간형 (수령 기간 지정)</option><option value="fixed" selected>정액형 (월 인출금 지정)</option>
                         </select>
                     </div>
-                    <div id="methodDuration" class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                        <label class="text-[10px] font-bold text-indigo-400">수령 희망 기간 (년)</label>
-                        <input id="drawYears" type="number" value="20" class="w-full p-2 bg-white border border-indigo-200 rounded-lg font-bold">
-                    </div>
-                    <div id="methodFixed" class="hidden p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                        <label class="text-[10px] font-bold text-emerald-400">월 인출 희망 금액 (원)</label>
-                        <input id="fixedMonthlyDisp" type="text" value="3,000,000" oninput="formatInput(this, 'fixedMonthly')" class="w-full p-2 bg-white border border-emerald-200 rounded-lg font-bold">
-                        <input id="fixedMonthly" type="hidden" value="3000000">
-                    </div>
+                    <div id="methodDuration" class="hidden p-4 bg-indigo-50 rounded-2xl border border-indigo-100"><label class="text-[10px] font-bold text-indigo-400">수령 희망 기간 (년)</label><input id="drawYears" type="number" value="20" class="w-full p-2 bg-white border border-indigo-200 rounded-lg font-bold text-sm"></div>
+                    <div id="methodFixed" class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100"><label class="text-[10px] font-bold text-emerald-400">월 인출 희망 금액 (원)</label><input id="fixedMonthlyDisp" type="text" value="3,000,000" oninput="formatInput(this, 'fixedMonthly')" class="w-full p-2 bg-white border border-emerald-200 rounded-lg font-bold text-sm"><input id="fixedMonthly" type="hidden" value="3000000"></div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-400">수령기 기대 수익률</label>
-                        <select id="drawReturn" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
-                            <option value="0.03" selected>안정형 (3%)</option>
-                            <option value="0.045">중립형 (4.5%)</option>
-                            <option value="0.06">성장형 (6%)</option>
+                        <select id="drawReturn" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-sm text-emerald-600">
+                            <option value="0.03">안정형 (3%)</option><option value="0.045" selected>중립형 (4.5%)</option><option value="0.06">성장형 (6%)</option>
                         </select>
                     </div>
                 </section>
-
-                <button onclick="runSimulation()" class="w-full bg-indigo-600 text-white p-5 rounded-3xl font-black hover:bg-indigo-700 transition-all shadow-xl active:scale-95">
-                    🚀 AI 시뮬레이션 시작
-                </button>
             </div>
 
             <div class="lg:col-span-8 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm"><p class="text-[10px] font-bold text-gray-400 mb-1">은퇴 시점 총 자산</p><p id="resBalance" class="text-3xl font-black text-indigo-600">- 원</p></div>
-                    <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm"><p class="text-[10px] font-bold text-gray-400 mb-1">첫 해 월 수령액</p><p id="resMonthly" class="text-3xl font-black text-emerald-600">- 원</p></div>
+                <button onclick="runSimulation()" class="w-full bg-indigo-600 text-white p-5 rounded-3xl font-black hover:bg-indigo-700 transition-all shadow-xl active:scale-95 text-lg">
+                    🚀 AI 시뮬레이션 시작 (결과 분석)
+                </button>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm"><p class="text-[10px] font-bold text-gray-400 mb-1">은퇴 시점 자산</p><p id="resBalance" class="text-xl font-black text-gray-400">- 만원</p></div>
+                    <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 mb-1 font-black tracking-tighter">수령 직전 자산 (거치 수익 포함)</p><p id="resReady" class="text-xl font-black text-indigo-600">- 만원</p></div>
+                    <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm"><p class="text-[10px] font-bold text-gray-400 mb-1">첫 해 실수령액(월)</p><p id="resMonthly" class="text-xl font-black text-emerald-600">- 만원</p></div>
                 </div>
                 
-                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm h-[350px]">
-                    <canvas id="pensionChart"></canvas>
-                </div>
+                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm h-[300px]"><canvas id="pensionChart"></canvas></div>
 
-                <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-                    <h3 class="font-bold text-gray-800 mb-4 px-2">📅 연령별 예상 월 수령액</h3>
-                    <div id="ageList" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                        <p class="col-span-full text-xs text-gray-400 py-4 italic">시뮬레이션을 시작하면 연령별 수령액이 표시됩니다.</p>
-                    </div>
-                </div>
-
-                <div id="aiInsight" class="bg-indigo-900 p-8 rounded-3xl text-white shadow-2xl opacity-0 transition-opacity duration-700">
-                    <h3 class="text-xl font-black mb-4 flex items-center gap-2">✨ AI 전략 리포트</h3>
+                <div id="aiInsight" class="bg-indigo-900 p-8 rounded-3xl text-white shadow-2xl opacity-0 transition-all duration-1000">
+                    <h3 class="text-lg font-black mb-4 flex items-center gap-2">✨ AI 절세 전략 리포트</h3>
                     <div id="insightContent" class="text-sm leading-relaxed text-indigo-100 whitespace-pre-wrap font-medium"></div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                    <h3 class="font-bold text-gray-800 p-6 border-b bg-gray-50/50 flex justify-between items-center text-sm">📅 연도별 상세 수령 내역 (절세 구간 분석)</h3>
+                    <div class="table-container text-[13px]">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-100 text-[10px] font-black uppercase text-gray-500 sticky top-0 z-10">
+                                <tr><th class="px-6 py-4">나이</th><th class="px-6 py-4">수령액(세전)</th><th class="px-6 py-4">세율/세금</th><th class="px-6 py-4">실수령액(월)</th><th class="px-6 py-4 text-right">기말 잔액</th></tr>
+                            </thead>
+                            <tbody id="pensionTableBody" class="divide-y divide-gray-50">
+                                <tr><td colspan="5" class="px-6 py-20 text-center text-gray-400 italic">결과를 기다리는 중입니다.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -117,10 +105,7 @@
 
         window.formatInput = (el, hiddenId) => {
             let val = el.value.replace(/[^0-9]/g, '');
-            if (val) {
-                document.getElementById(hiddenId).value = val;
-                el.value = Number(val).toLocaleString();
-            }
+            if (val) { document.getElementById(hiddenId).value = val; el.value = Number(val).toLocaleString(); }
         };
 
         window.toggleMethodInputs = () => {
@@ -130,87 +115,99 @@
         };
 
         window.runSimulation = async () => {
-            const inputs = {
-                age: Number(document.getElementById('age').value),
-                retire: Number(document.getElementById('retire').value),
-                balance: Number(document.getElementById('balance').value),
-                monthly: Number(document.getElementById('monthly').value),
-                accReturn: Number(document.getElementById('accReturn').value),
-                drawAge: Number(document.getElementById('drawAge').value),
-                drawReturn: Number(document.getElementById('drawReturn').value),
-                drawMethod: document.getElementById('drawMethod').value,
-                drawYears: Number(document.getElementById('drawYears').value),
-                fixedMonthly: Number(document.getElementById('fixedMonthly').value)
+            const i = {
+                age: Number(document.getElementById('age').value), retire: Number(document.getElementById('retire').value),
+                balance: Number(document.getElementById('balance').value), monthly: Number(document.getElementById('monthly').value),
+                yearly: Number(document.getElementById('yearly').value), accReturn: Number(document.getElementById('accReturn').value),
+                drawAge: Number(document.getElementById('drawAge').value), drawReturn: Number(document.getElementById('drawReturn').value),
+                drawMethod: document.getElementById('drawMethod').value, drawYears: Number(document.getElementById('drawYears').value), fixedMonthly: Number(document.getElementById('fixedMonthly').value)
             };
 
-            let current = inputs.balance;
-            let data = [];
-            let retirementBalance = 0;
-            let withdrawalLog = [];
+            let current = i.balance; let chartData = []; let retireBal = 0; let readyBal = 0; let tableRows = [];
 
-            for(let a = inputs.age; a <= 95; a++) {
-                let withdrawal = 0;
-                if(a < inputs.retire) {
-                    current = (current + (inputs.monthly * 12)) * (1 + inputs.accReturn);
-                } else if (a >= inputs.retire && a < inputs.drawAge) {
-                    current = current * (1 + inputs.drawReturn);
-                    if(a === inputs.retire) retirementBalance = current;
+            for(let a = i.age; a <= 95; a++) {
+                if(a < i.retire) {
+                    current = (current + (i.monthly * 12) + i.yearly) * (1 + i.accReturn);
+                    if(a === i.retire - 1) retireBal = current;
+                } else if (a >= i.retire && a < i.drawAge) {
+                    current = current * (1 + i.drawReturn);
+                    if(a === i.drawAge - 1) readyBal = current;
                 } else {
-                    if(a === inputs.retire) retirementBalance = current;
-                    if(inputs.drawMethod === 'duration') {
-                        let remainingYears = Math.max(1, inputs.drawYears - (a - inputs.drawAge));
-                        withdrawal = current / remainingYears;
-                    } else {
-                        withdrawal = inputs.fixedMonthly * 12;
+                    if(a === i.retire) retireBal = current;
+                    let withdrawPre = i.drawMethod === 'duration' ? current / Math.max(1, i.drawYears - (a - i.drawAge)) : i.fixedMonthly * 12;
+                    
+                    if (current > 0) {
+                        // 🔴 절세 로직: 연 1500만원(월 125만원) 기준 세율 차등 적용
+                        let taxRate = (withdrawPre > 15000000) ? 0.165 : 0.055;
+                        let tax = withdrawPre * taxRate;
+                        
+                        tableRows.push({ 
+                            age: a, 
+                            pre: withdrawPre/12, 
+                            rate: taxRate * 100,
+                            tax: tax/12, 
+                            post: (withdrawPre-tax)/12, 
+                            balance: Math.max(0, current - withdrawPre) 
+                        });
+                        current = Math.max(0, (current - withdrawPre) * (1 + i.drawReturn));
                     }
-                    current = Math.max(0, (current - withdrawal) * (1 + inputs.drawReturn));
-                    if (withdrawal > 0) withdrawalLog.push({age: a, amt: withdrawal/12});
                 }
-                data.push({age: a, balance: current});
+                chartData.push({ age: a, balance: current });
             }
 
-            document.getElementById('resBalance').innerText = Math.round(retirementBalance / 10000).toLocaleString() + "만원";
-            document.getElementById('resMonthly').innerText = withdrawalLog.length > 0 ? Math.round(withdrawalLog[0].amt / 10000).toLocaleString() + "만원" : "0원";
+            document.getElementById('resBalance').innerText = Math.round(retireBal / 10000).toLocaleString() + "만원";
+            document.getElementById('resReady').innerText = Math.round(readyBal / 10000).toLocaleString() + "만원";
+            document.getElementById('resMonthly').innerText = tableRows.length > 0 ? Math.round(tableRows[0].post / 10000).toLocaleString() + "만원" : "0원";
             
-            updateChart(data);
-            updateAgeList(withdrawalLog);
-            fetchAIInsight(inputs, retirementBalance, withdrawalLog[0]?.amt * 12 || 0);
+            updateChart(chartData); updateTable(tableRows);
+            fetchAIInsight(i, retireBal, readyBal, tableRows[0]?.pre*12 || 0);
         };
 
-        function updateAgeList(logs) {
-            const list = document.getElementById('ageList');
-            list.innerHTML = logs.filter((_, i) => i % 5 === 0).map(l => `
-                <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                    <p class="text-[10px] font-bold text-gray-400">${l.age}세</p>
-                    <p class="text-sm font-black text-gray-800">${Math.round(l.amt/10000).toLocaleString()}만원</p>
-                </div>
+        function updateTable(rows) {
+            document.getElementById('pensionTableBody').innerHTML = rows.map(r => `
+                <tr class="hover:bg-indigo-50/50">
+                    <td class="px-6 py-4 font-bold text-gray-900">${r.age}세</td>
+                    <td class="px-6 py-4 text-gray-500">${Math.round(r.pre/10000).toLocaleString()}만</td>
+                    <td class="px-6 py-4 ${r.rate > 10 ? 'text-red-500 font-bold' : 'text-indigo-400'}">
+                        ${r.rate}% (${Math.round(r.tax/10000).toLocaleString()}만)
+                    </td>
+                    <td class="px-6 py-4 font-black text-emerald-600">${Math.round(r.post/10000).toLocaleString()}만원</td>
+                    <td class="px-6 py-4 text-right font-mono font-bold text-gray-400">${(r.balance/100000000).toFixed(1)}억</td>
+                </tr>
             `).join('');
         }
 
         function updateChart(data) {
             const ctx = document.getElementById('pensionChart').getContext('2d');
             if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(d => d.age + "세"),
-                    datasets: [{ label: '자산 잔액', data: data.map(d => d.balance), borderColor: '#4F46E5', borderWidth: 4, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.05)', tension: 0.4, pointRadius: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { callback: v => (v/100000000).toFixed(1) + '억' } } } }
-            });
+            myChart = new Chart(ctx, { type: 'line', data: { labels: data.map(d => d.age + "세"), datasets: [{ label: '자산 잔액', data: data.map(d => d.balance), borderColor: '#4F46E5', borderWidth: 3, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.05)', tension: 0.4, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
 
-        async function fetchAIInsight(i, b, w) {
-            const box = document.getElementById('aiInsight');
-            box.style.opacity = 1;
-            document.getElementById('insightContent').innerText = "전략 분석 중...";
+        async function fetchAIInsight(i, b, rb, annualPre) {
+            const box = document.getElementById('aiInsight'); box.style.opacity = 1;
+            const content = document.getElementById('insightContent');
+            content.innerText = "세법 기반 절세 로직 분석 중...";
+            
+            const isOverLimit = annualPre > 15000000;
+
             try {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = `은퇴자산 ${b}원, 월 수령액 ${w/12}원을 계획하는 사용자에게 연금수령한도(120% 룰)와 세금 최적화 팁을 한국어로 3줄 요약해줘.`;
+                const prompt = `
+                은퇴자산 정보: 은퇴직후 ${b}원, 65세 수령직전 ${rb}원.
+                사용자 현재 연간 수령액(세전): ${annualPre}원. (1500만원 ${isOverLimit ? '초과' : '이하'})
+                
+                PM의 관점에서 다음을 분석해줘:
+                1. 거치 기간 동안 불어난 자산(${rb-b}원)의 가치 언급.
+                2. 사적연금 1500만원 룰 적용 분석 (초과 시 16.5% 분리과세와 이하 시 5.5% 분리과세의 실질 세금 차이).
+                3. 수령액 조절을 통한 절세 극대화 팁.
+                한국어로 4줄 이내 요약.
+                `;
                 const result = await model.generateContent(prompt);
-                document.getElementById('insightContent').innerText = result.response.text();
+                content.innerText = result.response.text();
             } catch (e) {
-                document.getElementById('insightContent').innerText = "연간 1,500만원 이하 수령 시 분리과세 혜택이 큽니다. 인출 시점을 조절하세요.";
+                content.innerText = isOverLimit 
+                    ? "⚠️ 현재 수령액이 연 1,500만원을 초과하여 세금 부담이 큽니다(16.5% 적용). 수령 기간을 늘려 5.5% 저율과세 구간으로 진입하는 것을 강력 권장합니다."
+                    : "✅ 연 1,500만원 이내 인출로 5.5% 저율과세 혜택을 잘 활용하고 계십니다. 거치 기간 동안 불어난 자산을 지키는 안정적인 운용이 지속되어야 합니다.";
             }
         }
     </script>
