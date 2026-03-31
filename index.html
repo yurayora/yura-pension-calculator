@@ -54,7 +54,7 @@
 
         <div id="withdrawDurationGroup" class="input-group">
             <label>수령 희망 기간 (년)</label>
-            <input type="number" id="withdrawDuration" placeholder="예: 10">
+            <input type="number" id="withdrawDuration" value="10">
         </div>
 
         <div id="withdrawAmountGroup" class="input-group hidden">
@@ -69,19 +69,20 @@
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // 🔴 여기에 실제 API 키를 다시 넣어주세요!
         const API_KEY = "AIzaSyBESJ33rtrjwMmCVtID2Toja-_uEQjzShU";
         const genAI = new GoogleGenerativeAI(API_KEY);
 
-        // 수령 방법에 따라 입력창 전환하는 함수
         window.toggleWithdrawInput = () => {
             const type = document.getElementById('withdrawType').value;
+            const durationGroup = document.getElementById('withdrawDurationGroup');
+            const amountGroup = document.getElementById('withdrawAmountGroup');
+            
             if (type === '정기') {
-                document.getElementById('withdrawDurationGroup').classList.remove('hidden');
-                document.getElementById('withdrawAmountGroup').classList.add('hidden');
+                durationGroup.classList.remove('hidden');
+                amountGroup.classList.add('hidden');
             } else {
-                document.getElementById('withdrawDurationGroup').classList.add('hidden');
-                document.getElementById('withdrawAmountGroup').classList.remove('hidden');
+                durationGroup.classList.add('hidden');
+                amountGroup.classList.remove('hidden');
             }
         };
 
@@ -102,15 +103,18 @@
                     monthly: document.getElementById('withdrawMonthly').value
                 };
 
-                const model = genAI.getGenerativeModel({ 
-                    model: "gemini-1.5-flash",
-                    systemInstruction: "당신은 연금 전략 전문가입니다. 제공된 데이터를 기반으로 은퇴 시점 자산, 월 예상 수령액, 세금 및 절세 전략을 상세히 분석하여 리포트로 제공하세요."
-                });
+                // 모델 설정을 가장 단순하고 명확하게 변경
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 
-                const result = await model.generateContent(JSON.stringify(data));
-                resultDiv.innerText = result.response.text();
+                const prompt = `당신은 대한민국 연금 전문가입니다. 다음 데이터를 바탕으로 은퇴 자산 및 세금 전략 리포트를 작성하세요: ${JSON.stringify(data)}. 
+                반드시 은퇴 시점 자산, 월 예상 수령액, 절세 팁을 포함하여 가독성 있게 한국어로 답변하세요.`;
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                resultDiv.innerText = response.text();
             } catch (error) {
-                resultDiv.innerText = "오류 발생: " + error.message;
+                console.error(error);
+                resultDiv.innerText = "오류 발생: " + error.message + "\n(API 키와 모델 권한을 확인해주세요.)";
             }
         };
     </script>
