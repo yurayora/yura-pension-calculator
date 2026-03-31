@@ -3,39 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전략적 연금 인출 엔진 v1.2</title>
+    <title>전략적 연금 인출 엔진 v1.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         body { font-family: 'Pretendard', sans-serif; background-color: #F3F4F6; }
+        .input-card { transition: all 0.2s ease-in-out; }
+        .input-card:focus-within { border-color: #4F46E5; ring: 2px; ring-color: #4F46E5; }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
-        <header class="flex items-center justify-between mb-8 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <header class="flex flex-col md:flex-row items-center justify-between mb-8 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 p-2 rounded-xl text-white">📊</div>
+                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg">🛡️</div>
                 <div>
                     <h1 class="text-xl font-black text-gray-900 tracking-tight">전략적 연금 인출 엔진</h1>
-                    <p class="text-[10px] font-bold text-indigo-500 uppercase">Strategic Pension Withdrawal Engine</p>
+                    <p class="text-[10px] font-bold text-indigo-500 uppercase">Strategic Pension Withdrawal Engine v1.4</p>
                 </div>
             </div>
-            <button onclick="runSimulation()" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700 transition-all">AI 분석 시작</button>
+            <button onclick="runSimulation()" class="w-full md:w-auto bg-indigo-600 text-white px-10 py-3.5 rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-xl active:scale-95 text-sm">
+                AI 시뮬레이션 시작
+            </button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-4 space-y-6">
-                <section class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
-                    <h2 class="font-bold mb-6 flex items-center gap-2 text-gray-800">💰 자산 축적 설정</h2>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-[10px] font-bold text-gray-400">현재 나이</label><input id="age" type="number" value="35" class="w-full p-2 bg-gray-50 border rounded-lg"></div>
-                            <div><label class="text-[10px] font-bold text-gray-400">은퇴 나이</label><input id="retire" type="number" value="60" class="w-full p-2 bg-gray-50 border rounded-lg"></div>
-                        </div>
-                        <div><label class="text-[10px] font-bold text-gray-400">현재 잔액 (원)</label><input id="balance" type="number" value="50000000" class="w-full p-2 bg-gray-50 border rounded-lg"></div>
-                        <div><label class="text-[10px] font-bold text-gray-400">매월 추가 납입 (원)</label><input id="monthly" type="number" value="1000000" class="w-full p-2 bg-gray-50 border rounded-lg"></div>
-                        <div><label class="text-[10px] font-bold text-gray-400">연간 회사 납입 (원)</label><input id="yearly" type="number" value="5000000" class="w-full p-2 bg-gray-50 border rounded-lg"></div>
+                <section class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-5">
+                    <h2 class="font-bold text-gray-800 flex items-center gap-2 border-b pb-4">💰 자산 축적 설정</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[10px] font-bold text-gray-400 uppercase">현재 나이</label><input id="age" type="number" value="35" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold"></div>
+                        <div><label class="text-[10px] font-bold text-gray-400 uppercase">은퇴 나이</label><input id="retire" type="number" value="60" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold"></div>
+                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">현재 잔액 (원)</label><input id="balance" type="number" value="50000000" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-indigo-600"></div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">매월 추가 납입 (원)</label><input id="monthly" type="number" value="1000000" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold"></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">축적기 기대 수익률</label>
+                        <select id="accReturn" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
+                            <option value="0.03">안정형 (채권 중심, 3%)</option>
+                            <option value="0.05" selected>중립형 (배당/채권, 5%)</option>
+                            <option value="0.08">성장형 (지수/기술주, 8%)</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-5">
+                    <h2 class="font-bold text-gray-800 flex items-center gap-2 border-b pb-4">📈 인출 및 운용 전략</h2>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">수령 개시 연령</label><input id="drawAge" type="number" value="65" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold text-emerald-600"></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">수령 방식 선택</label>
+                        <select id="drawMethod" onchange="toggleMethodInputs()" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
+                            <option value="duration">기간형 (수령 기간 지정)</option>
+                            <option value="fixed">정액형 (월 인출금 지정)</option>
+                        </select>
+                    </div>
+                    <div id="methodDuration" class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase">수령 희망 기간 (년)</label>
+                        <input id="drawYears" type="number" value="20" class="w-full p-2 bg-white border border-indigo-200 rounded-lg font-bold">
+                        <p class="text-[9px] text-indigo-400 mt-1">*잔액을 기간 동안 나누어 수령합니다.</p>
+                    </div>
+                    <div id="methodFixed" class="hidden p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <label class="text-[10px] font-bold text-emerald-400 uppercase">월 인출 희망 금액 (원)</label>
+                        <input id="fixedMonthly" type="number" value="3000000" class="w-full p-2 bg-white border border-emerald-200 rounded-lg font-bold">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">수령기 기대 수익률</label>
+                        <select id="drawReturn" class="w-full p-2.5 bg-gray-50 border rounded-xl font-bold">
+                            <option value="0.03" selected>안정형 (채권 중심, 3%)</option>
+                            <option value="0.045">중립형 (배당/채권, 4.5%)</option>
+                            <option value="0.06">성장형 (지수/배당, 6%)</option>
+                        </select>
                     </div>
                 </section>
             </div>
@@ -43,20 +81,22 @@
             <div class="lg:col-span-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
-                        <p class="text-[10px] font-bold text-gray-400 mb-1">은퇴 시점 예상 자산</p>
-                        <p id="resBalance" class="text-2xl font-black text-indigo-600">- 원</p>
+                        <p class="text-[10px] font-bold text-gray-400 mb-1">은퇴 시점 예상 총 자산</p>
+                        <p id="resBalance" class="text-3xl font-black text-indigo-600">- 원</p>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm text-emerald-600">
-                        <p class="text-[10px] font-bold text-gray-400 mb-1">첫 해 절세 한도(월)</p>
-                        <p id="resLimit" class="text-2xl font-black">- 원</p>
+                    <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
+                        <p class="text-[10px] font-bold text-gray-400 mb-1">첫 해 예상 월 수령액(세전)</p>
+                        <p id="resMonthly" class="text-3xl font-black text-emerald-600">- 원</p>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
-                    <canvas id="pensionChart" height="200"></canvas>
+                
+                <div class="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm min-h-[350px]">
+                    <canvas id="pensionChart"></canvas>
                 </div>
-                <div id="aiInsight" class="bg-indigo-900 p-8 rounded-3xl text-white shadow-xl opacity-0 transition-opacity duration-500">
-                    <h3 class="text-lg font-black mb-4">✨ AI 전략 리포트</h3>
-                    <div id="insightContent" class="text-sm leading-relaxed text-indigo-100 whitespace-pre-wrap"></div>
+
+                <div id="aiInsight" class="bg-indigo-900 p-8 rounded-3xl text-white shadow-2xl opacity-0 transition-opacity duration-700">
+                    <h3 class="text-xl font-black mb-4 flex items-center gap-2">✨ AI 전략 리포트</h3>
+                    <div id="insightContent" class="text-sm leading-relaxed text-indigo-100 whitespace-pre-wrap font-medium"></div>
                 </div>
             </div>
         </div>
@@ -64,11 +104,15 @@
 
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
-
-        // 요라님의 API 키 (이건 공공장소에 올릴 때 주의하세요!)
         const API_KEY = "AIzaSyBESJ33rtrjwMmCVtID2Toja-_uEQjzShU";
         const genAI = new GoogleGenerativeAI(API_KEY);
         let myChart;
+
+        window.toggleMethodInputs = () => {
+            const method = document.getElementById('drawMethod').value;
+            document.getElementById('methodDuration').classList.toggle('hidden', method !== 'duration');
+            document.getElementById('methodFixed').classList.toggle('hidden', method !== 'fixed');
+        };
 
         window.runSimulation = async () => {
             const inputs = {
@@ -76,27 +120,49 @@
                 retire: Number(document.getElementById('retire').value),
                 balance: Number(document.getElementById('balance').value),
                 monthly: Number(document.getElementById('monthly').value),
-                yearly: Number(document.getElementById('yearly').value)
+                accReturn: Number(document.getElementById('accReturn').value),
+                drawAge: Number(document.getElementById('drawAge').value),
+                drawReturn: Number(document.getElementById('drawReturn').value),
+                drawMethod: document.getElementById('drawMethod').value,
+                drawYears: Number(document.getElementById('drawYears').value),
+                fixedMonthly: Number(document.getElementById('fixedMonthly').value)
             };
 
-            // 단순 복리 계산 로직 (축적기)
             let current = inputs.balance;
             let data = [];
-            for(let a = inputs.age; a <= 90; a++) {
+            let retirementBalance = 0;
+            let firstYearWithdrawal = 0;
+
+            for(let a = inputs.age; a <= 95; a++) {
                 if(a < inputs.retire) {
-                    current = (current + (inputs.monthly * 12) + inputs.yearly) * 1.06; // 연 6% 가정
+                    current = (current + (inputs.monthly * 12)) * (1 + inputs.accReturn);
+                } else if (a >= inputs.retire && a < inputs.drawAge) {
+                    current = current * (1 + inputs.drawReturn);
+                    if(a === inputs.retire) retirementBalance = current;
                 } else {
-                    current = current * 1.045 - (current * 0.04); // 은퇴 후 4.5% 수익, 4% 인출 가정
+                    if(a === inputs.retire) retirementBalance = current;
+                    
+                    let withdrawal = 0;
+                    if(inputs.drawMethod === 'duration') {
+                        // 기간형: 현재 잔액 / 남은 수령 기간
+                        let remainingYears = Math.max(1, inputs.drawYears - (a - inputs.drawAge));
+                        withdrawal = current / remainingYears;
+                    } else {
+                        // 정액형: 입력한 월 인출금 * 12
+                        withdrawal = inputs.fixedMonthly * 12;
+                    }
+                    
+                    if(a === inputs.drawAge) firstYearWithdrawal = withdrawal;
+                    current = Math.max(0, (current - withdrawal) * (1 + inputs.drawReturn));
                 }
-                data.push({age: a, balance: Math.max(0, current)});
+                data.push({age: a, balance: current});
             }
 
-            // UI 업데이트
-            document.getElementById('resBalance').innerText = Math.round(data[inputs.retire - inputs.age].balance).toLocaleString() + "원";
-            document.getElementById('resLimit').innerText = "약 " + Math.round(data[inputs.retire - inputs.age].balance * 0.04 / 12).toLocaleString() + "원";
+            document.getElementById('resBalance').innerText = Math.round(retirementBalance / 10000).toLocaleString() + "만원";
+            document.getElementById('resMonthly').innerText = Math.round(firstYearWithdrawal / 12 / 10000).toLocaleString() + "만원";
             
             updateChart(data);
-            fetchAIInsight(inputs, data[inputs.retire - inputs.age].balance);
+            fetchAIInsight(inputs, retirementBalance, firstYearWithdrawal);
         };
 
         function updateChart(data) {
@@ -106,24 +172,40 @@
                 type: 'line',
                 data: {
                     labels: data.map(d => d.age + "세"),
-                    datasets: [{ label: '자산 잔액', data: data.map(d => d.balance), borderColor: '#4F46E5', fill: true, backgroundColor: 'rgba(79, 70, 229, 0.1)', tension: 0.4 }]
+                    datasets: [{
+                        label: '자산 잔액 (원)',
+                        data: data.map(d => d.balance),
+                        borderColor: '#4F46E5',
+                        borderWidth: 4,
+                        fill: true,
+                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => (v/100000000).toFixed(1) + '억' } }
+                    }
                 }
             });
         }
 
-        async function fetchAIInsight(inputs, retireBalance) {
+        async function fetchAIInsight(inputs, retireBalance, withdrawal) {
             const content = document.getElementById('insightContent');
             const box = document.getElementById('aiInsight');
             box.style.opacity = 1;
-            content.innerText = "AI가 요라님만을 위한 절세 전략을 분석 중입니다...";
+            content.innerText = "전략 분석 중...";
 
             try {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = `은퇴 자산이 ${retireBalance}원인 ${inputs.age}세 사용자에게 55세 이후 연금수령한도(120% 룰)를 적용한 절세 전략과 배당 ETF 포트폴리오 조언을 한국어로 3줄 요약해줘.`;
+                const prompt = `은퇴자산 ${retireBalance}원, 월 수령액 ${withdrawal/12}원을 계획하는 사용자에게 120% 수령한도 절세 팁과 수익률 제고 방안을 한국어로 3줄 요약해줘.`;
                 const result = await model.generateContent(prompt);
                 content.innerText = result.response.text();
             } catch (e) {
-                content.innerText = "분석 완료: 55세 이후 연 1,500만원 이하 수령 시 저율과세 혜택을 누릴 수 있습니다. SCHD와 같은 고배당 ETF 비중 확대를 추천합니다.";
+                content.innerText = "연금 수령 시 1,500만원 초과 시 종합과세 대상이 될 수 있으니 주의하세요. 현재 포트폴리오에서 배당 성장주 비중을 조절하는 전략이 필요합니다.";
             }
         }
     </script>
